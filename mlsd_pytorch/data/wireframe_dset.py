@@ -1,5 +1,6 @@
 import json
-from mlsd_pytorch.utils.comm import create_dir
+from utils.comm import create_dir
+
 import  tqdm
 import os
 import cv2
@@ -15,7 +16,20 @@ from albumentations import (
     OneOf,
     HueSaturationValue,
     Compose,
-    Normalize
+    Normalize,
+    Blur,
+    GaussianBlur,
+    MedianBlur,
+    # + Beamdata additional >>>
+    RandomFog ,
+    RandomSunFlare,
+    Posterize,
+    MultiplicativeNoise ,
+    MotionBlur,
+    GlassBlur,
+    ColorJitter,
+    CLAHE,
+    Emboss,
 )
 
 from mlsd_pytorch.data.utils import \
@@ -36,8 +50,8 @@ def parse_label_file_info(img_dir, label_file):
         w = c['width']
         h = c['height']
         lines = c['lines']
-        fn = c['filename'][:-4]+'.jpg'
-        full_fn = img_dir + fn
+        fn = c['filename'][:-4]+'.png'
+        full_fn = img_dir + '/'+fn
         assert os.path.exists(full_fn), full_fn
 
         json_content = {
@@ -134,14 +148,33 @@ class Line_Dataset(Dataset):
                                                  p=0.5)
                     ]
                 ),
-                #                 OneOf(
-                #                     [
-                #                         Blur(blur_limit=3, p=0.5),
-                #                         GaussianBlur(blur_limit=3, p=0.5),
-                #                         MedianBlur(blur_limit=3, p=0.5)
-                #                     ]
-                #                 ),
-
+                OneOf(
+                    [
+                        Blur(blur_limit=3, p=0.5),
+                        GaussianBlur(blur_limit=3, p=0.5),
+                        MedianBlur(blur_limit=3, p=0.5)
+                    ]
+                ), OneOf(
+                    [
+                        RandomFog (fog_coef_lower=0.5, fog_coef_upper=1, alpha_coef=0.08, p=0.5),
+                        RandomSunFlare (flare_roi=(0, 0, 1, 0.5), angle_lower=0, angle_upper=1, num_flare_circles_lower=6, num_flare_circles_upper=10, src_radius=400, src_color=(255, 255, 255), p=0.5),
+                        Posterize (num_bits=3, p=0.25),
+                        MultiplicativeNoise (multiplier=(1.4, 1.4), per_channel=False, elementwise=False, p=0.75),
+                        MotionBlur (blur_limit=200, p=0.75),
+                        GlassBlur (sigma=0.1, max_delta=4, iterations=4, mode='fast', p=0.5),
+                        ColorJitter  (brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2, p=0.5),
+                        CLAHE(clip_limit=50, tile_grid_size=(3, 3), p=0.5),
+                        Emboss (alpha=(0.5, 1), strength=(5,5), p=0.25)
+                    ]
+                ), OneOf(
+                    [
+                        MotionBlur (blur_limit=200, p=0.75),
+                        GlassBlur (sigma=0.1, max_delta=4, iterations=4, mode='fast', p=0.5),
+                        ColorJitter  (brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2, p=0.5),
+                        CLAHE(clip_limit=50, tile_grid_size=(3, 3), p=0.5),
+                        Emboss (alpha=(0.5, 1), strength=(5,5), p=0.25)
+                    ]
+                )
             ],
             p=1.0)
         return aug

@@ -1,0 +1,23 @@
+
+1) Configuration:
+   There are two config files under ./mlsd_pytorch/configs for tiny and large models
+   Update either or create a new one and modify
+   The configuration file name will be passed to train.py in step 3
+   Various model parameteres, input image size, number of epochs, batch size, folders, etc are set and selected in the configuration file
+   
+2) Dataset:
+   Please note that ther are two /data folders in the directory hierarchy. 
+   By default the /data folder under /mlsd_pytorch is used but the data folder is a configurable parameter in step 1
+   If not already existing, create /images and /train folders under /mlsd_pytorch/data/wireframe_raw, next to where train.json and valid.json files are located and then copy the 
+   The dataset images are expected to be in png format [Wireframe dataset](https://github.com/huangkuns/wireframe) is jpeg
+   
+3) Training:
+   After setting up the datasets and the training configuration file
+   cd to the parent folder of ./mlsd_pytorch folder
+   Run the mlsd_pytorch/train.py script and pass the configuration file selected in step 1 as --config parameter. For example:
+		$python mlsd_pytorch/train.py --config mlsd_pytorch/configs/mobilev2_mlsd_???_512_base2_bsize24.yaml
+		
+   More info: 
+   https://github.com/lhwcv/mlsd_pytorch/blob/main/mlsd_pytorch/README.md
+   
+   
